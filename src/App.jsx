@@ -226,62 +226,54 @@ function CollectionCard({ collection }) {
   )
 }
 
-function ProductCard({ product, onQuickView }) {
+function ProductCard({ product }) {
   const rating = product.rating ?? '4.9'
   const reviews = product.reviews ?? '20'
-  const savings = product.savings ?? 'Save 20%'
 
   return (
-    <article className="product-card product-card-dark fade-in" data-aos="fade-up">
+    <article className="product-card fade-in" data-aos="fade-up">
       <div className="product-media">
         <span className="product-glow" />
+        {product.badge && <span className="product-badge">{product.badge}</span>}
+        <button className="wish-button" type="button" aria-label={`Save ${product.name}`}>
+          <Heart size={17} />
+        </button>
         <Link to={`/shop/${product.slug}`} aria-label={`View ${product.name}`}>
           <img src={product.image} alt={product.name} />
         </Link>
-        {product.badge && <span className="product-badge">{product.badge}</span>}
-        <button className="wish-button" type="button" aria-label={`Save ${product.name}`}>
-          <Heart size={20} />
-        </button>
       </div>
+
       <div className="product-card-body">
         <div className="rating-row" aria-label={`${rating} star rating`}>
           <span>
             {[...Array(5)].map((_, index) => (
-              <Star key={index} size={15} fill="currentColor" />
+              <Star key={index} size={13} fill="currentColor" />
             ))}
           </span>
-          <em>
-            {rating} ({reviews} reviews)
-          </em>
+          <em>{rating} ({reviews})</em>
         </div>
+
         <Link to={`/shop/${product.slug}`}>
           <h3>{product.name}</h3>
         </Link>
+
         <span className="pack-size">{product.packSize}</span>
-        <p className="product-summary">{product.description}</p>
-        <div className="stock-row">
-          <Info size={17} />
-          <span>In Stock</span>
+
+        <div className="product-price-row">
+          <strong className="product-price">{product.price}</strong>
+          {product.mrp && <span className="product-mrp">{product.mrp}</span>}
         </div>
-        <div className="product-row">
-          <div className="price-stack">
-            <strong>{product.price}</strong>
-            {product.mrp && <span>{product.mrp}</span>}
-            {product.mrp && (
-              <em>
-                <BadgePercent size={15} /> {savings}
-              </em>
-            )}
-          </div>
-          <div className="product-actions">
-            <button className="cart-button" type="button" onClick={() => onQuickView?.(product)}>
-              <Eye size={18} /> Quick View
-            </button>
-            <a className="order-pill" href={whatsappUrl(product.name)} target="_blank" rel="noreferrer">
-              <Zap size={18} /> Buy Now
-            </a>
-          </div>
-        </div>
+
+        <a
+          className="add-to-cart-btn"
+          href={whatsappUrl(product.name)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Order ${product.name} on WhatsApp`}
+        >
+          <ShoppingBag size={16} />
+          Add to Cart
+        </a>
       </div>
     </article>
   )
@@ -711,7 +703,6 @@ function StoryFeature({ image, eyebrow, title, body, points = [], reverse = fals
 }
 
 function Shop() {
-  const [quickViewProduct, setQuickViewProduct] = useState(null)
   const featuredProduct = products[0]
   const shopFaqItems = [
     ['How do I order?', 'Tap Buy Now or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
@@ -799,7 +790,7 @@ function Shop() {
 
           <div className="product-grid">
             {products.map((product) => (
-              <ProductCard key={product.slug} product={product} onQuickView={setQuickViewProduct} />
+              <ProductCard key={product.slug} product={product} />
             ))}
           </div>
         </div>
