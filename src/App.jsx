@@ -14,6 +14,7 @@ import {
   Menu,
   MessageCircle,
   PackageCheck,
+  RotateCcw,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -391,6 +392,47 @@ function FAQ({ items }) {
   )
 }
 
+const trustBadges = [
+  {
+    icon: ShieldCheck,
+    title: 'FSSAI Certified',
+    subtitle: 'Licensed & compliant',
+  },
+  {
+    icon: Leaf,
+    title: 'No Chemicals',
+    subtitle: '100% natural ingredients',
+  },
+  {
+    icon: Truck,
+    title: 'Free Delivery',
+    subtitle: 'On all orders pan-India',
+  },
+  {
+    icon: RotateCcw,
+    title: 'Easy Returns',
+    subtitle: 'Hassle-free policy',
+  },
+]
+
+function TrustBadgeStrip() {
+  return (
+    <section className="trust-badge-strip" aria-label="Trust signals">
+      <div className="container trust-badge-grid">
+        {trustBadges.map(({ icon: Icon, title, subtitle }) => (
+          <div className="trust-badge-item" key={title}>
+            <span className="trust-badge-icon" aria-hidden="true">
+              <Icon size={26} strokeWidth={1.75} />
+            </span>
+            <strong>{title}</strong>
+            <span>{subtitle}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function Home() {
   useEffect(() => {
     const updateHeroParallax = () => {
@@ -428,7 +470,11 @@ function Home() {
           <p className="eyebrow hero-tagline">From Indian soil, with care</p>
           <h1 className="word-reveal" aria-label="Pure Organic Goodness for Your Family">
             {['Pure', 'Organic', 'Goodness', 'for', 'Your', 'Family'].map((word, index) => (
-              <span key={word} style={{ '--word-delay': `${0.32 + index * 0.13}s` }}>
+              <span
+                key={word}
+                className={word === 'Goodness' ? 'highlight-word' : undefined}
+                style={{ '--word-delay': `${0.32 + index * 0.13}s` }}
+              >
                 {word}
               </span>
             ))}
@@ -439,8 +485,15 @@ function Home() {
               <Sparkles size={17} /> Shop Now
             </ButtonLink>
             <ButtonLink to={whatsappUrl()} variant="outline" external>
-              <MessageCircle size={18} /> Order on WhatsApp
+              <MessageCircle size={18} /> WhatsApp Us
             </ButtonLink>
+          </div>
+          <div className="hero-trust-badges" aria-label="ArogyaOrganic trust badges">
+            {['100% A2 Desi Cow Milk', 'Traditional Bilona Method', 'No Chemicals'].map((badge) => (
+              <span key={badge}>
+                <BadgeCheck size={16} /> {badge}
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -453,6 +506,8 @@ function Home() {
           <HeroStat value="Est. 2020" label="Since" plain />
         </div>
       </section>
+
+      <TrustBadgeStrip />
 
       <section className="section" data-aos="fade-up">
         <SectionIntro eyebrow="Crafted by Nature" title="Seasonal purity, handled with patience">
@@ -1151,6 +1206,28 @@ function WhatsAppAssistant() {
   )
 }
 
+function MobileBottomNav() {
+  const { pathname } = useLocation()
+  const items = [
+    ['Home', '/', Leaf, pathname === '/'],
+    ['Shop', '/shop', ShoppingBag, pathname.startsWith('/shop')],
+    ['Search', '/shop', Search, false],
+    ['Saved', '/shop', Heart, false],
+    ['Account', '/contact', User, pathname === '/contact']
+  ]
+
+  return (
+    <nav className="mobile-bottom-nav" aria-label="Mobile bottom navigation">
+      {items.map(([label, path, Icon, active]) => (
+        <Link key={label} to={path} className={active ? 'active' : undefined} aria-label={label}>
+          <Icon size={20} />
+          <span>{label}</span>
+        </Link>
+      ))}
+    </nav>
+  )
+}
+
 function App() {
   useEffect(() => {
     AOS.init({
@@ -1176,7 +1253,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />
-      <WhatsAppAssistant />
+      <MobileBottomNav />
     </>
   )
 }
