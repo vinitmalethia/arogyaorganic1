@@ -3,13 +3,10 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import {
   BadgeCheck,
-  BadgePercent,
   BookOpen,
   CalendarDays,
   ChevronDown,
-  Eye,
   Heart,
-  Info,
   Leaf,
   Menu,
   MessageCircle,
@@ -24,7 +21,6 @@ import {
   Truck,
   User,
   Users,
-  Zap,
   X
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -92,8 +88,8 @@ const seasonalCollections = [
 
 function whatsappUrl(productName) {
   const text = productName
-    ? `Hello ArogyaOrganic, I would like to buy ${productName}`
-    : 'Hello ArogyaOrganic, I would like to know more about your organic products'
+    ? `Hello Arogya Organic, I would like to buy ${productName}`
+    : 'Hello Arogya Organic, I would like to know more about your organic products'
 
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`
 }
@@ -143,7 +139,7 @@ function Navbar() {
     <header className="site-header">
       <nav className="nav-shell" aria-label="Main navigation">
         <Link to="/" className="brand" onClick={closeMenus}>
-          ArogyaOrganic
+          Arogya Organic
         </Link>
 
         <div className={`nav-links ${open ? 'is-open' : ''}`}>
@@ -229,14 +225,21 @@ function CollectionCard({ collection }) {
 function ProductCard({ product }) {
   const rating = product.rating ?? '4.9'
   const reviews = product.reviews ?? '20'
+  const [saved, setSaved] = useState(false)
 
   return (
     <article className="product-card fade-in" data-aos="fade-up">
       <div className="product-media">
         <span className="product-glow" />
         {product.badge && <span className="product-badge">{product.badge}</span>}
-        <button className="wish-button" type="button" aria-label={`Save ${product.name}`}>
-          <Heart size={17} />
+        <button
+          className={`wish-button ${saved ? 'saved' : ''}`}
+          type="button"
+          aria-label={`${saved ? 'Remove' : 'Save'} ${product.name}`}
+          aria-pressed={saved}
+          onClick={() => setSaved((value) => !value)}
+        >
+          <Heart size={17} fill={saved ? 'currentColor' : 'none'} />
         </button>
         <Link to={`/shop/${product.slug}`} aria-label={`View ${product.name}`}>
           <img src={product.image} alt={product.name} />
@@ -265,14 +268,14 @@ function ProductCard({ product }) {
         </div>
 
         <a
-          className="add-to-cart-btn"
+          className="whatsapp-order-btn"
           href={whatsappUrl(product.name)}
           target="_blank"
           rel="noreferrer"
           aria-label={`Order ${product.name} on WhatsApp`}
         >
-          <ShoppingBag size={16} />
-          Add to Cart
+          <MessageCircle size={16} />
+          Order on WhatsApp
         </a>
       </div>
     </article>
@@ -322,51 +325,6 @@ function HeroStat({ value, suffix = '', label, plain = false }) {
   return (
     <div>
       <AnimatedStat value={value} suffix={suffix} label={label} />
-    </div>
-  )
-}
-
-function QuickViewModal({ product, onClose }) {
-  if (!product) return null
-
-  return (
-    <div className="quick-view-backdrop" role="dialog" aria-modal="true" aria-label={`${product.name} quick view`}>
-      <div className="quick-view-panel">
-        <button className="quick-view-close" type="button" onClick={onClose} aria-label="Close quick view">
-          <X size={20} />
-        </button>
-        <div className="quick-view-image">
-          <img src={product.image} alt={product.name} />
-        </div>
-        <div className="quick-view-copy">
-          <p className="eyebrow">{product.category}</p>
-          <h2>{product.name}</h2>
-          <div className="detail-price">
-            <strong>{product.price}</strong>
-            {product.mrp && (
-              <p>
-                MRP <span>{product.mrp}</span>
-              </p>
-            )}
-          </div>
-          <p>{product.description}</p>
-          <div className="transparency-mini">
-            {product.benefits.slice(0, 4).map((benefit) => (
-              <span key={benefit}>
-                <BadgeCheck size={16} /> {benefit}
-              </span>
-            ))}
-          </div>
-          <div className="detail-actions">
-            <ButtonLink to={whatsappUrl(product.name)} external>
-              <MessageCircle size={18} /> Buy on WhatsApp
-            </ButtonLink>
-            <ButtonLink to={`/shop/${product.slug}`} variant="outline">
-              Full details
-            </ButtonLink>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
@@ -440,8 +398,8 @@ function Home() {
   }, [])
 
   const faqItems = [
-    ['Are ArogyaOrganic products certified organic?', 'We work with clean farms and small-batch producers who follow chemical-free cultivation and traditional processing standards.'],
-    ['How do I place an order?', 'Choose a product and tap Buy Now or Order on WhatsApp. Our team confirms availability, pack size, and delivery details.'],
+    ['Are Arogya Organic products certified organic?', 'We work with clean farms and small-batch producers who follow chemical-free cultivation and traditional processing standards.'],
+    ['How do I place an order?', 'Choose a product and tap Order on WhatsApp. Our team confirms availability, pack size, and delivery details.'],
     ['Do you use preservatives?', 'Our pantry staples, honey, ghee, oils, and spices are selected for purity and packed without unnecessary additives.'],
     ['Where do you deliver?', 'Delivery availability is confirmed over WhatsApp based on your city and product selection.']
   ]
@@ -480,7 +438,7 @@ function Home() {
               <MessageCircle size={18} /> WhatsApp Us
             </ButtonLink>
           </div>
-          <div className="hero-trust-badges" aria-label="ArogyaOrganic trust badges">
+          <div className="hero-trust-badges" aria-label="Arogya Organic trust badges">
             {['100% A2 Desi Cow Milk', 'Traditional Bilona Method', 'No Chemicals'].map((badge) => (
               <span key={badge}>
                 <BadgeCheck size={16} /> {badge}
@@ -490,7 +448,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="hero-stat-strip" aria-label="ArogyaOrganic impact">
+      <section className="hero-stat-strip" aria-label="Arogya Organic impact">
         <div className="container hero-stat-grid">
           <HeroStat value="500" suffix="+" label="Farmers" />
           <HeroStat value="10000" suffix="+" label="Families" />
@@ -519,7 +477,7 @@ function Home() {
       </section>
 
       <section className="section oat-band" data-aos="fade-up">
-        <SectionIntro eyebrow="Why ArogyaOrganic" title="Clean food, clear conscience" />
+        <SectionIntro eyebrow="Why Arogya Organic" title="Clean food, clear conscience" />
         <div className="container trust-grid">
           {['FSSAI Certified', 'Chemical Free', 'Farm Fresh', '100% Natural', 'Traditional Methods'].map(
             (item) => (
@@ -601,37 +559,6 @@ function Home() {
         </div>
       </section>
 
-      <SplitSection
-        reverse
-        image={herbsImage}
-        eyebrow="Ayurveda"
-        title="Traditional wisdom for modern living"
-        body="Daily wellness is not a trend. It is a set of quiet rituals: pure ghee, natural herbs, sattvic ingredients, and food prepared with patience instead of artificial interventions."
-        link="/ayurveda"
-        linkText="Explore Ayurveda"
-      />
-
-      <section className="section">
-        <SectionIntro eyebrow="Customer Reviews" title="Trusted in everyday kitchens" />
-        <div className="container review-grid">
-          {[
-            ['The honey tastes beautifully natural. Nothing sharp or artificial, just clean floral sweetness.', 'Ananya R.'],
-            ['Their ghee has become a staple at home. The aroma feels exactly like the ghee my grandmother made.', 'Rohit M.'],
-            ['Elegant packaging, honest products, and quick WhatsApp support. A very reassuring experience.', 'Meera S.']
-          ].map(([quote, name]) => (
-            <article className="review-card" key={name} data-aos="fade-up">
-              <div className="stars" aria-label="Five star review">
-                {[...Array(5)].map((_, index) => (
-                  <Star key={index} size={15} fill="currentColor" />
-                ))}
-              </div>
-              <p>“{quote}”</p>
-              <strong>{name}</strong>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="section oat-band" data-aos="fade-up">
         <SectionIntro eyebrow="Ayurveda Knowledge" title="Learn before you buy">
           Gentle guides for families who want to understand ingredients, rituals, and traditional processing.
@@ -705,7 +632,7 @@ function StoryFeature({ image, eyebrow, title, body, points = [], reverse = fals
 function Shop() {
   const featuredProduct = products[0]
   const shopFaqItems = [
-    ['How do I order?', 'Tap Buy Now or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
+    ['How do I order?', 'Tap Order on WhatsApp or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
     ['Are there preservatives?', 'No. Our products are selected around natural ingredients, traditional methods, and minimal intervention.'],
     ['Can I ask for product guidance?', 'Yes. Use the WhatsApp assistant and share your family size, routine, and preferred products.'],
     ['Do you offer seasonal recommendations?', 'Yes. Our seasonal wellness collections are designed around daily rituals, digestion, pantry staples, and traditional living.']
@@ -727,7 +654,7 @@ function Shop() {
       <section className="shop-hero">
         <div className="container shop-hero-grid">
           <div className="shop-hero-copy fade-in">
-            <p className="eyebrow">Shop ArogyaOrganic</p>
+            <p className="eyebrow">Shop Arogya Organic</p>
             <h1>Premium organic products, ready to order</h1>
             <p>
               A focused selection of A2 ghee, grains, Ayurvedic wellness, and natural living essentials.
@@ -851,8 +778,81 @@ function Shop() {
           <FAQ items={shopFaqItems} />
         </div>
       </section>
-      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </main>
+  )
+}
+
+const gheeHistory = [
+  {
+    date: '3000 BCE',
+    title: 'Rigvedic Origins',
+    body: "The Rigveda, humanity's oldest scripture, first mentions ghee as 'the first and most essential of all foods.' It was offered to Agni (fire god) in sacred yagnas and believed to carry prayers to the heavens. The verse 'Ghritam duhanam' describes it as 'milk of the divine cow.'",
+    source: 'ऋग्वेद · Rigveda'
+  },
+  {
+    date: '1500 BCE',
+    title: 'Charaka Samhita',
+    body: "The foundational text of Ayurveda declares ghee as 'the best of all fats.' Acharya Charaka documented 108 uses of ghee—from treating wounds to enhancing intelligence. He wrote that ghee 'improves memory, intellect, power of digestion, and gives clarity to the mind.'",
+    source: 'चरक संहिता'
+  },
+  {
+    date: '1000 BCE',
+    title: "Sushruta's Surgical Applications",
+    body: 'Acharya Sushruta, the father of surgery, used ghee-based formulations for wound healing and post-operative care. His text describes medicated ghee (Ghrita) preparations that combine ghee with herbs for targeted healing.',
+    source: 'सुश्रुत संहिता'
+  },
+  {
+    date: '500 BCE',
+    title: 'Buddhist & Jain Traditions',
+    body: 'As Buddhism and Jainism spread, ghee became a symbol of non-violence—nourishment obtained without harming the cow. Monks carried ghee lamps as symbols of enlightenment, and ghee was considered sattvic (pure) food for spiritual practitioners.',
+    source: 'Buddhist Pali Canon'
+  },
+  {
+    date: '500 CE',
+    title: 'Ashtanga Hridaya',
+    body: "Vagbhata's masterwork systematized ghee's Ayurvedic applications. He classified ghee as 'Tridosha Shamaka'—the rare substance that balances all three doshas. His protocols for aged ghee (Purana Ghrita) are still followed by Ayurvedic physicians today.",
+    source: 'अष्टांग हृदय'
+  },
+  {
+    date: 'Present',
+    title: 'Modern Science Validates',
+    body: '21st-century research explores what sages described millennia ago. A2 ghee contains naturally occurring fatty acids, including omega-3, omega-9, and conjugated linoleic acid (CLA). Its high smoke point also makes it well suited to many traditional cooking methods.',
+    source: 'Modern Research'
+  }
+]
+
+function GheeHistoryTimeline() {
+  return (
+    <section className="ghee-history" aria-labelledby="ghee-history-title">
+      <div className="container ghee-history-header">
+        <p className="eyebrow">A Living Tradition</p>
+        <h2 id="ghee-history-title">5,000 Years of Sacred Knowledge</h2>
+        <p>
+          From Vedic altars to modern laboratories, trace ghee&apos;s remarkable journey through
+          human history.
+        </p>
+      </div>
+
+      <div className="container ghee-history-list">
+        {gheeHistory.map((entry, index) => (
+          <article className="ghee-history-entry" key={entry.date} data-aos="fade-up">
+            <time>{entry.date}</time>
+            <span className="ghee-history-marker" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <div className="ghee-history-card">
+              <h3>{entry.title}</h3>
+              <p>{entry.body}</p>
+              <cite>— {entry.source}</cite>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p className="container ghee-history-note">
+        Historical and wellness information is shared for education and is not medical advice.
+      </p>
+    </section>
   )
 }
 
@@ -894,7 +894,7 @@ function ProductDetails() {
             <p>{product.description}</p>
             <div className="detail-actions">
               <ButtonLink to={whatsappUrl(product.name)} external>
-                <MessageCircle size={18} /> Buy Now
+                <MessageCircle size={18} /> Order on WhatsApp
               </ButtonLink>
               <ButtonLink to="/shop" variant="outline">
                 Back to Shop
@@ -917,6 +917,7 @@ function ProductDetails() {
           </div>
         </div>
       </section>
+      {product.slug === 'puro-a2-cow-ghee' && <GheeHistoryTimeline />}
       <section className="section oat-band">
         <div className="container detail-lower">
           <div>
@@ -983,42 +984,155 @@ function Farm() {
 }
 
 function Ayurveda() {
+  const chakras = [
+    ['Root', 'Grounding'],
+    ['Sacral', 'Creativity'],
+    ['Solar Plexus', 'Confidence'],
+    ['Heart', 'Love'],
+    ['Throat', 'Communication'],
+    ['Third Eye', 'Wisdom'],
+    ['Crown', 'Inner peace']
+  ]
+  const doshas = [
+    ['Vata', 'Air & Space', 'Controls movement, breathing, and creativity.'],
+    ['Pitta', 'Fire & Water', 'Governs digestion, metabolism, and focus.'],
+    ['Kapha', 'Earth & Water', 'Provides strength, stability, and immunity.']
+  ]
+  const dailyRhythm = [
+    ['Morning', 'Move & center', 'Exercise, yoga, and meditation prepare the body and mind for the day.'],
+    ['Midday', 'Nourish', 'Digestive strength is at its peak, making this the best time for the largest meal.'],
+    ['Afternoon', 'Create & focus', 'Use the day’s active energy for meaningful work, learning, and creativity.'],
+    ['Evening', 'Slow down', 'Choose relaxation, a light dinner, and gentle routines that settle the senses.'],
+    ['Night', 'Rest & repair', 'Deep, consistent sleep gives the body time to restore and renew.']
+  ]
+
   return (
-    <main className="page">
-      <PageHeader
-        eyebrow="Ayurveda"
-        title="Ancient wisdom for modern families"
-        body="Ayurveda teaches that nourishment should support balance, vitality, and well-being. Our products are crafted around that belief, without shortcuts or artificial interventions."
-      />
-      <SplitSection
-        image={herbsImage}
-        eyebrow="Food as Medicine"
-        title="A daily ritual of balance"
-        body="The wisdom of Ayurveda lives in simple choices: pure ghee, sattvic ingredients, herbs used with respect, and food prepared in a way that keeps its natural energy intact."
-        link="/shop/triphala-churna"
-        linkText="Explore wellness"
-      />
-      <SplitSection
-        reverse
-        image={gheeServingImage}
-        eyebrow="Sattvic Nourishment"
-        title="Ghee, milk, and mindful meals"
-        body="Our handcrafted dairy offerings reflect a commitment to purity, aroma, natural nutrients, and the comforting traditions of Indian homes."
-        link="/shop/puro-a2-cow-ghee"
-        linkText="Shop A2 ghee"
-      />
-      <section className="section section-tight">
-        <div className="container editorial-grid">
-          {[
-            ['Morning Warmth', 'Begin with clean dairy, herbs, or golden milk for a gentle start.'],
-            ['Balanced Cooking', 'Use ghee and grains prepared with patience, care, and tradition.'],
-            ['Evening Calm', 'Return to simple Ayurvedic rituals that support rest and digestion.']
-          ].map(([title, body]) => (
-            <article key={title}>
-              <h2>{title}</h2>
-              <p>{body}</p>
-            </article>
-          ))}
+    <main className="page ayurveda-page">
+      <section className="ayurveda-hero">
+        <div className="container ayurveda-hero-grid">
+          <div className="ayurveda-hero-copy fade-in">
+            <p className="eyebrow">The Wisdom of Ayurveda</p>
+            <h1>Live in balance with your natural rhythm</h1>
+            <p>
+              Ayurveda is a timeless way of understanding the connection between mind, body,
+              spirit, and the world around us. Its daily practices turn wellness into a way of life.
+            </p>
+            <a className="ayurveda-scroll-link" href="#energy-centers">
+              Explore the foundations <ChevronDown size={17} />
+            </a>
+          </div>
+          <div className="ayurveda-hero-image fade-in">
+            <img src={herbsImage} alt="Ayurvedic herbs prepared for a mindful wellness ritual" />
+            <span>Mind · Body · Spirit</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="ayurveda-foundation" id="energy-centers">
+        <div className="container ayurveda-feature-grid">
+          <figure className="ayurveda-portrait-card" data-aos="fade-up">
+            <img src="/wellness/chakras.jpg" alt="The seven chakras aligned along a meditating figure" />
+            <figcaption>Seven centers · One connected system</figcaption>
+          </figure>
+          <div className="ayurveda-feature-copy" data-aos="fade-up">
+            <p className="eyebrow">Energy & Awareness</p>
+            <h2>The Seven Chakras</h2>
+            <p className="ayurveda-lead">
+              Ayurveda teaches that the body contains seven energy centers called chakras. They
+              influence our physical, emotional, and mental well-being.
+            </p>
+            <p>
+              When balanced, the chakras support confidence, love, communication, wisdom, and
+              inner peace. Meditation, yoga, proper nutrition, and mindful living help keep these
+              energy centers aligned and support overall health.
+            </p>
+            <div className="chakra-list" aria-label="The seven chakras">
+              {chakras.map(([name, quality], index) => (
+                <span key={name} style={{ '--chakra-index': index }}>
+                  <i aria-hidden="true" />
+                  <strong>{name}</strong>
+                  <small>{quality}</small>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="ayurveda-foundation dosha-section">
+        <div className="container ayurveda-feature-grid reverse">
+          <figure className="ayurveda-portrait-card" data-aos="fade-up">
+            <img src="/wellness/dosha-guide.jpg" alt="Meditation scene illustrating Vata, Pitta, and Kapha doshas" />
+            <figcaption>Your constitution is uniquely yours</figcaption>
+          </figure>
+          <div className="ayurveda-feature-copy" data-aos="fade-up">
+            <p className="eyebrow">Your Natural Constitution</p>
+            <h2>The Three Doshas</h2>
+            <p className="ayurveda-lead">
+              According to Ayurveda, every person is shaped by three doshas. Their unique balance
+              influences how we move, digest, think, and restore.
+            </p>
+            <div className="dosha-grid">
+              {doshas.map(([name, elements, description]) => (
+                <article key={name}>
+                  <span>{elements}</span>
+                  <h3>{name}</h3>
+                  <p>{description}</p>
+                </article>
+              ))}
+            </div>
+            <p className="balance-note">
+              <BadgeCheck size={19} /> When the doshas remain balanced, digestion, energy, and
+              overall wellness are naturally supported.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="ayurveda-foundation clock-section">
+        <div className="container ayurveda-feature-grid">
+          <figure className="ayurveda-portrait-card clock-card" data-aos="fade-up">
+            <img src="/wellness/ayurvedic-clock.jpg" alt="Illustrated Ayurvedic clock showing the rhythm of a balanced day" />
+            <figcaption>Move with the rhythm of the day</figcaption>
+          </figure>
+          <div className="ayurveda-feature-copy" data-aos="fade-up">
+            <p className="eyebrow">Living with Nature</p>
+            <h2>The Ayurvedic Clock</h2>
+            <p className="ayurveda-lead">
+              Ayurveda recommends aligning daily activities with the body’s natural rhythms. A
+              well-paced day can support digestion, sleep, energy, and mental clarity.
+            </p>
+            <ol className="rhythm-list">
+              {dailyRhythm.map(([time, title, body], index) => (
+                <li key={time}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <small>{time}</small>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section className="ayurveda-closing">
+        <div className="container ayurveda-closing-inner" data-aos="fade-up">
+          <div>
+            <p className="eyebrow">Why Ayurveda Matters</p>
+            <h2>A way of life, not only a healing system</h2>
+          </div>
+          <div>
+            <p>
+              By balancing mind, body, and spirit through natural foods, daily routines, and
+              mindful habits, Ayurveda helps create lasting health, vitality, and inner harmony.
+            </p>
+            <ButtonLink to="/shop/triphala-churna">
+              <Leaf size={18} /> Explore Ayurvedic wellness
+            </ButtonLink>
+          </div>
         </div>
       </section>
     </main>
@@ -1104,7 +1218,7 @@ function Contact() {
       <PageHeader
         eyebrow="Contact"
         title="We are here to help you choose well"
-        body="For orders, product questions, delivery availability, or farm sourcing enquiries, connect with the ArogyaOrganic team."
+        body="For orders, product questions, delivery availability, or farm sourcing enquiries, connect with the Arogya Organic team."
       />
       <section className="section section-tight">
         <div className="container contact-grid">
@@ -1119,7 +1233,7 @@ function Contact() {
           </article>
           <article>
             <h2>Visit by appointment</h2>
-            <p>ArogyaOrganic Farm Collective</p>
+            <p>Arogya Organic Farm Collective</p>
             <p>India</p>
             <p>Farm visits are scheduled seasonally for customers and sourcing partners.</p>
           </article>
@@ -1135,7 +1249,7 @@ function Footer() {
       <div className="container footer-grid">
         <div>
           <Link to="/" className="brand">
-            ArogyaOrganic
+            Arogya Organic
           </Link>
           <p>Farm fresh, chemical-free, natural products delivered with trust.</p>
         </div>
@@ -1181,7 +1295,7 @@ function WhatsAppAssistant() {
           <button type="button" onClick={() => setOpen(false)} aria-label="Close WhatsApp assistant">
             <X size={16} />
           </button>
-          <p className="eyebrow">ArogyaOrganic Assistant</p>
+          <p className="eyebrow">Arogya Organic Assistant</p>
           <h3>Need help choosing?</h3>
           <p>Tell us your family size, city, and preferred product. We will suggest the right pack.</p>
           <a href={whatsappUrl()} target="_blank" rel="noreferrer">
@@ -1202,15 +1316,20 @@ function MobileBottomNav() {
   const items = [
     ['Home', '/', Leaf, pathname === '/'],
     ['Shop', '/shop', ShoppingBag, pathname.startsWith('/shop')],
-    ['Search', '/shop', Search, false],
-    ['Saved', '/shop', Heart, false],
-    ['Account', '/contact', User, pathname === '/contact']
+    ['Ayurveda', '/ayurveda', BookOpen, pathname === '/ayurveda'],
+    ['Contact', '/contact', User, pathname === '/contact']
   ]
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile bottom navigation">
       {items.map(([label, path, Icon, active]) => (
-        <Link key={label} to={path} className={active ? 'active' : undefined} aria-label={label}>
+        <Link
+          key={label}
+          to={path}
+          className={active ? 'active' : undefined}
+          aria-label={label}
+          aria-current={active ? 'page' : undefined}
+        >
           <Icon size={20} />
           <span>{label}</span>
         </Link>

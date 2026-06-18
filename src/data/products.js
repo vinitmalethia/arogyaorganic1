@@ -1,4 +1,4 @@
-export const whatsappNumber = '91XXXXXXXXXX'
+export const whatsappNumber = '917769999888'
 
 export const products = [
   {
