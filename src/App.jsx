@@ -1337,12 +1337,86 @@ function Contact() {
               <MessageCircle size={18} /> Chat on WhatsApp
             </ButtonLink>
           </article>
-          <article>
-            <h2>Visit by appointment</h2>
-            <p>Arogya Organic Farm Collective</p>
-            <p>India</p>
-            <p>Farm visits are scheduled seasonally for customers and sourcing partners.</p>
+          <article className="contact-experiences">
+            <h2>From our farm to your home</h2>
+            <div className="contact-experience-list">
+              <div>
+                <span aria-hidden="true">🐄</span>
+                <div>
+                  <h3>Meet Our Desi Cows</h3>
+                  <p>See how our cows are raised naturally with care, clean fodder, and traditional practices.</p>
+                </div>
+              </div>
+              <div>
+                <span aria-hidden="true">🥣</span>
+                <div>
+                  <h3>Watch the Bilona Process</h3>
+                  <p>Learn how our A2 Ghee is handcrafted using the traditional Bilona method.</p>
+                </div>
+              </div>
+              <div>
+                <span aria-hidden="true">📦</span>
+                <div>
+                  <h3>Pan-India Delivery</h3>
+                  <p>Fresh products delivered across India with quality and care.</p>
+                </div>
+              </div>
+            </div>
           </article>
+        </div>
+      </section>
+
+      <section className="section contact-trust-section">
+        <div className="container contact-trust-grid">
+          <div>
+            <p className="eyebrow">Our Promise</p>
+            <h2>Why Families Choose Arogya Organic</h2>
+            <div className="contact-trust-list">
+              {[
+                'Real Farm, Real Cows',
+                'Pure A2 Desi Cow Ghee',
+                'Traditional Bilona Method',
+                'No Chemicals or Preservatives',
+                'Delivered Across India'
+              ].map((item) => (
+                <span key={item}><BadgeCheck size={18} /> {item}</span>
+              ))}
+            </div>
+          </div>
+          <div className="contact-counters" aria-label="Arogya Organic trust counters">
+            {[
+              ['50+', 'Desi Cows'],
+              ['500+', 'Happy Families'],
+              ['Pan-India', 'Delivery'],
+              ['100%', 'Natural Products']
+            ].map(([value, label]) => (
+              <div key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section contact-gallery-section">
+        <SectionIntro eyebrow="A Closer Look" title="Care you can see">
+          A glimpse of our farm-led sourcing, traditional food culture, and finished ghee.
+        </SectionIntro>
+        <div className="container contact-gallery">
+          {[
+            [farmCareImage, 'Natural farm care', 'Ingredients begin with hands-on care for the soil.'],
+            [gheeServingImage, 'Made for Indian kitchens', 'Golden ghee prepared for everyday family meals.'],
+            [products[0].image, 'Carefully prepared jars', 'Our A2 cow ghee, packed and ready for your home.']
+          ].map(([image, title, body], index) => (
+            <figure className={index === 0 ? 'featured' : undefined} key={title}>
+              <img src={image} alt={title} />
+              <figcaption>
+                <strong>{title}</strong>
+                <span>{body}</span>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
     </main>
@@ -1353,39 +1427,39 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="container footer-grid">
-        <div>
+        <div className="footer-brand">
           <Link to="/" className="brand">
             Arogya Organic
           </Link>
           <p>Farm fresh, chemical-free, natural products delivered with trust.</p>
         </div>
-        <div>
+        <div className="footer-links">
           <h3>Quick links</h3>
           <Link to="/shop">Shop</Link>
           <Link to="/the-farm">The Farm</Link>
           <Link to="/ayurveda">Ayurveda</Link>
           <Link to="/about">About Us</Link>
         </div>
-        <div>
+        <div className="footer-contact">
           <h3>Contact</h3>
-          <p>care@arogyaorganic.in</p>
-          <p>+91 77699 99888</p>
-          <a href={whatsappUrl()} target="_blank" rel="noreferrer">
-            WhatsApp
+          <a href="mailto:care@arogyaorganic.in">care@arogyaorganic.in</a>
+          <a href="tel:+917769999888">+91 77699 99888</a>
+          <a className="footer-whatsapp" href={whatsappUrl()} target="_blank" rel="noreferrer">
+            <MessageCircle size={15} /> WhatsApp
           </a>
         </div>
-        <div>
+        <div className="footer-social">
           <h3>Social</h3>
-          <a href="https://instagram.com" target="_blank" rel="noreferrer">
-            Instagram
-          </a>
-          <a href="https://facebook.com" target="_blank" rel="noreferrer">
-            Facebook
-          </a>
-          <a href="https://youtube.com" target="_blank" rel="noreferrer">
-            YouTube
-          </a>
+          <div>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
+            <a href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+          </div>
         </div>
+      </div>
+      <div className="container footer-bottom">
+        <span>© 2026 Arogya Organic</span>
+        <span>Pure food · Mindful living</span>
       </div>
     </footer>
   )
