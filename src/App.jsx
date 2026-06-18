@@ -3,9 +3,12 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import {
   BadgeCheck,
+  BadgePercent,
   BookOpen,
   CalendarDays,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Heart,
   Leaf,
   Menu,
@@ -23,7 +26,7 @@ import {
   Users,
   X
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { collections, products, whatsappNumber } from './data/products.js'
 
 const farmHero =
@@ -94,6 +97,73 @@ function whatsappUrl(productName) {
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`
 }
 
+function whatsappCartUrl(items) {
+  const orderLines = items.map(({ product, quantity }) => `• ${product.name} × ${quantity}`).join('\n')
+  const total = items.reduce((sum, { product, quantity }) => sum + priceValue(product.price) * quantity, 0)
+  const text = `Hello Arogya Organic, I would like to order:\n${orderLines}\n\nTotal: ${formatPrice(total)}`
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`
+}
+
+function priceValue(price) {
+  return Number(String(price).replace(/[^0-9.]/g, '')) || 0
+}
+
+function formatPrice(value) {
+  return `₹${value.toLocaleString('en-IN')}`
+}
+
+function discountPercent(product) {
+  if (!product?.mrp) return 0
+  const mrp = priceValue(product.mrp)
+  const price = priceValue(product.price)
+  return mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0
+}
+
+const CartContext = createContext(null)
+
+function CartProvider({ children }) {
+  const [items, setItems] = useState([])
+  const [open, setOpen] = useState(false)
+
+  const addProduct = (product) => {
+    setItems((current) => {
+      const existing = current.find((item) => item.product.slug === product.slug)
+      if (existing) {
+        return current.map((item) =>
+          item.product.slug === product.slug ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      }
+      return [...current, { product, quantity: 1 }]
+    })
+  }
+
+  const removeProduct = (slug) => {
+    setItems((current) => current.filter((item) => item.product.slug !== slug))
+  }
+
+  const decreaseProduct = (slug) => {
+    setItems((current) =>
+      current
+        .map((item) =>
+          item.product.slug === slug ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0)
+    )
+  }
+
+  const count = items.reduce((total, item) => total + item.quantity, 0)
+
+  return (
+    <CartContext.Provider value={{ items, count, open, setOpen, addProduct, decreaseProduct, removeProduct }}>
+      {children}
+    </CartContext.Provider>
+  )
+}
+
+function useCart() {
+  return useContext(CartContext)
+}
+
 function ButtonLink({ to, children, variant = 'primary', external = false }) {
   const className = `btn ${variant === 'outline' ? 'btn-outline' : 'btn-primary'}`
   if (external) {
@@ -113,6 +183,7 @@ function ButtonLink({ to, children, variant = 'primary', external = false }) {
 function Navbar() {
   const [open, setOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const { count, setOpen: setCartOpen } = useCart()
 
   const closeMenus = () => {
     setOpen(false)
@@ -170,9 +241,10 @@ function Navbar() {
           <Link to="/shop" aria-label="Search products">
             <Search size={18} />
           </Link>
-          <Link to="/shop" aria-label="Shopping bag">
+          <button className="cart-nav-button" type="button" aria-label={`Shopping bag with ${count} ${count === 1 ? 'item' : 'items'}`} onClick={() => setCartOpen(true)}>
             <ShoppingBag size={18} />
-          </Link>
+            {count > 0 && <span>{count}</span>}
+          </button>
           <Link to="/contact" aria-label="Account">
             <User size={18} />
           </Link>
@@ -225,7 +297,9 @@ function CollectionCard({ collection }) {
 function ProductCard({ product }) {
   const rating = product.rating ?? '4.9'
   const reviews = product.reviews ?? '20'
+  const discount = discountPercent(product)
   const [saved, setSaved] = useState(false)
+  const { addProduct } = useCart()
 
   return (
     <article className="product-card fade-in" data-aos="fade-up">
@@ -265,18 +339,28 @@ function ProductCard({ product }) {
         <div className="product-price-row">
           <strong className="product-price">{product.price}</strong>
           {product.mrp && <span className="product-mrp">{product.mrp}</span>}
+          {discount > 0 && (
+            <span className="discount-pill" aria-label={`Save ${discount} percent`}>
+              <BadgePercent size={13} /> Save {discount}%
+            </span>
+          )}
         </div>
 
-        <a
-          className="whatsapp-order-btn"
-          href={whatsappUrl(product.name)}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Order ${product.name} on WhatsApp`}
-        >
-          <MessageCircle size={16} />
-          Order on WhatsApp
-        </a>
+        <div className="product-card-actions">
+          <button type="button" className="quick-add-btn" onClick={() => addProduct(product)}>
+            <ShoppingBag size={16} /> Quick Add
+          </button>
+          <a
+            className="whatsapp-order-btn"
+            href={whatsappUrl(product.name)}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Order ${product.name} on WhatsApp`}
+          >
+            <MessageCircle size={16} />
+            WhatsApp
+          </a>
+        </div>
       </div>
     </article>
   )
@@ -339,6 +423,49 @@ function FAQ({ items }) {
         </details>
       ))}
     </div>
+  )
+}
+
+const customerReviews = [
+  ['Their ghee has become a staple at home. The aroma feels exactly like the ghee my grandmother made.', 'Rohit M.'],
+  ['The texture is beautifully grainy and the WhatsApp ordering process was simple and personal.', 'Ananya R.'],
+  ['Honest products, careful packaging, and quick support. A very reassuring experience.', 'Meera S.']
+]
+
+function ReviewsCarousel() {
+  const [active, setActive] = useState(0)
+  const [quote, name] = customerReviews[active]
+
+  const showPrevious = () => setActive((active - 1 + customerReviews.length) % customerReviews.length)
+  const showNext = () => setActive((active + 1) % customerReviews.length)
+
+  return (
+    <section className="section reviews-carousel-section" aria-labelledby="reviews-title">
+      <div className="container reviews-carousel">
+        <div>
+          <p className="eyebrow">Customer Reviews</p>
+          <h2 id="reviews-title">Trusted in everyday kitchens</h2>
+        </div>
+        <article aria-live="polite">
+          <div className="stars" aria-label="Five star review">
+            {[...Array(5)].map((_, index) => (
+              <Star key={index} size={16} fill="currentColor" />
+            ))}
+          </div>
+          <blockquote>“{quote}”</blockquote>
+          <strong>{name}</strong>
+          <div className="review-controls">
+            <button type="button" onClick={showPrevious} aria-label="Previous review">
+              <ChevronLeft size={20} />
+            </button>
+            <span>{active + 1} / {customerReviews.length}</span>
+            <button type="button" onClick={showNext} aria-label="Next review">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
   )
 }
 
@@ -405,7 +532,7 @@ function Home() {
   ]
 
   return (
-    <>
+    <main className="page home-page">
       <section className="hero">
         <img className="hero-bg" src={farmHero} alt="Warm sunlight over organic farm fields" />
         <div className="hero-overlay" />
@@ -459,13 +586,6 @@ function Home() {
 
       <TrustBadgeStrip />
 
-      <section className="section" data-aos="fade-up">
-        <SectionIntro eyebrow="Crafted by Nature" title="Seasonal purity, handled with patience">
-          Our products begin with mindful sourcing: healthy soil, traditional Indian processing, and
-          small-batch care that respects the natural rhythm of each ingredient.
-        </SectionIntro>
-      </section>
-
       <section className="section section-tight">
         <div className="container">
           <div className="collection-grid">
@@ -477,7 +597,7 @@ function Home() {
       </section>
 
       <section className="section oat-band" data-aos="fade-up">
-        <SectionIntro eyebrow="Why Arogya Organic" title="Clean food, clear conscience" />
+        <SectionIntro eyebrow="Why Choose Us?" title="Clean food, clear conscience" />
         <div className="container trust-grid">
           {['FSSAI Certified', 'Chemical Free', 'Farm Fresh', '100% Natural', 'Traditional Methods'].map(
             (item) => (
@@ -529,35 +649,53 @@ function Home() {
         </div>
       </section>
 
-      <SplitSection
-        image={farmCareImage}
-        eyebrow="Our Farm Story"
-        title="Food is the first medicine"
-        body="What began as a simple belief grew into a mission to preserve the ancient wisdom of Ayurveda for modern families. Inspired by rural India and the teachings of our sages, we choose ingredients and processes that honor purity over speed."
-        link="/the-farm"
-        linkText="Visit the farm"
-      />
-
-      <section className="section story-panel-section">
-        <div className="container story-panel">
-          <div className="story-copy">
-            <p className="eyebrow">Purity, tradition, Ayurveda</p>
-            <h2>No chemicals. No preservatives. No compromises.</h2>
-            <p>
-              From Bilona A2 Desi Cow Ghee to fresh, wholesome dairy products, every offering is
-              prepared to retain its natural nutrients, aroma, and sattvic qualities.
-            </p>
-          </div>
-          <div className="promise-grid">
-            {promiseItems.map((item) => (
-              <div key={item}>
-                <BadgeCheck size={18} />
-                <span>{item}</span>
+      <section className="section home-ghee-story" data-aos="fade-up">
+        <SectionIntro eyebrow="From Cow to Kitchen" title="The story behind our Bilona ghee">
+          Three simple steps. Pure milk, patient preparation, and nothing unnecessary.
+        </SectionIntro>
+        <div className="container home-ghee-story-grid">
+          {[
+            {
+              step: '01 · Milk source',
+              title: 'From cared-for Desi cows',
+              body: 'Our milk comes from Desi cows raised in clean surroundings with natural fodder and attentive care.',
+              image: farmCareImage,
+              alt: 'Desi cow care at an Indian farm'
+            },
+            {
+              step: '02 · Bilona method',
+              title: 'Curd, churned into butter',
+              body: 'Milk is set into curd, traditionally churned to separate butter, then gently heated into aromatic ghee.',
+              image: gheeServingImage,
+              alt: 'Traditional ghee served in an Indian kitchen'
+            },
+            {
+              step: '03 · Wholesome choice',
+              title: 'Pure, useful everyday nourishment',
+              body: 'Slow preparation preserves its natural aroma and character, with no artificial colours, flavours, or preservatives.',
+              image: products[0].image,
+              alt: 'A jar of Arogya Organic A2 cow ghee',
+              product: true
+            }
+          ].map((story) => (
+            <article className={`home-ghee-story-card ${story.product ? 'product-image' : ''}`} key={story.step} data-aos="fade-up">
+              <div className="home-ghee-story-image">
+                <img src={story.image} alt={story.alt} />
+                <span>{story.step}</span>
               </div>
-            ))}
-          </div>
+              <div>
+                <h3>{story.title}</h3>
+                <p>{story.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="container home-ghee-story-action">
+          <Link to="/shop/puro-a2-cow-ghee">Discover our A2 Bilona ghee</Link>
         </div>
       </section>
+
+      <ReviewsCarousel />
 
       <section className="section oat-band" data-aos="fade-up">
         <SectionIntro eyebrow="Ayurveda Knowledge" title="Learn before you buy">
@@ -581,7 +719,7 @@ function Home() {
           <FAQ items={faqItems} />
         </div>
       </section>
-    </>
+    </main>
   )
 }
 
@@ -634,13 +772,8 @@ function Shop() {
   const shopFaqItems = [
     ['How do I order?', 'Tap Order on WhatsApp or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
     ['Are there preservatives?', 'No. Our products are selected around natural ingredients, traditional methods, and minimal intervention.'],
-    ['Can I ask for product guidance?', 'Yes. Use the WhatsApp assistant and share your family size, routine, and preferred products.'],
+    ['Can I ask for product guidance?', 'Yes. Tap Chat on WhatsApp and share your family size, routine, and preferred products.'],
     ['Do you offer seasonal recommendations?', 'Yes. Our seasonal wellness collections are designed around daily rituals, digestion, pantry staples, and traditional living.']
-  ]
-  const shopStats = [
-    ['5', 'Curated SKUs'],
-    ['100%', 'Natural sourcing'],
-    ['24h', 'Order confirmation']
   ]
   const shopBenefits = [
     [ShieldCheck, 'Quality checked batches'],
@@ -651,45 +784,6 @@ function Shop() {
 
   return (
     <main className="page">
-      <section className="shop-hero">
-        <div className="container shop-hero-grid">
-          <div className="shop-hero-copy fade-in">
-            <p className="eyebrow">Shop Arogya Organic</p>
-            <h1>Premium organic products, ready to order</h1>
-            <p>
-              A focused selection of A2 ghee, grains, Ayurvedic wellness, and natural living essentials.
-              Every order is confirmed personally on WhatsApp.
-            </p>
-            <div className="hero-actions">
-              <ButtonLink to={whatsappUrl(featuredProduct.name)} external>
-                <MessageCircle size={18} /> Order Best Seller
-              </ButtonLink>
-              <ButtonLink to="/shop/puro-a2-cow-ghee" variant="outline">
-                View Ghee
-              </ButtonLink>
-            </div>
-            <div className="shop-stats">
-              {shopStats.map(([value, label]) => (
-                <div key={label}>
-                  <strong>{value}</strong>
-                  <span>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Link to={`/shop/${featuredProduct.slug}`} className="featured-product-card fade-in">
-            <span className="featured-kicker">Best seller this week</span>
-            <img src={featuredProduct.image} alt={featuredProduct.name} />
-            <div>
-              <p>{featuredProduct.packSize}</p>
-              <h2>{featuredProduct.name}</h2>
-              <strong>{featuredProduct.price}</strong>
-            </div>
-          </Link>
-        </div>
-      </section>
-
       <section className="shop-benefit-strip">
         <div className="container shop-benefits">
           {shopBenefits.map(([Icon, label]) => (
@@ -858,7 +952,9 @@ function GheeHistoryTimeline() {
 
 function ProductDetails() {
   const { slug } = useParams()
+  const { addProduct } = useCart()
   const product = products.find((item) => item.slug === slug)
+  const discount = discountPercent(product)
   const related = useMemo(() => products.filter((item) => item.slug !== slug).slice(0, 3), [slug])
 
   if (!product) {
@@ -870,7 +966,7 @@ function ProductDetails() {
   }
 
   return (
-    <main className="page">
+    <main className="page product-details-page">
       <section className="section product-detail-section">
         <div className="container product-detail">
           <div className="detail-image">
@@ -889,6 +985,11 @@ function ProductDetails() {
                 <p>
                   MRP <span>{product.mrp}</span>
                 </p>
+              )}
+              {discount > 0 && (
+                <span className="discount-pill detail-discount-pill" aria-label={`Save ${discount} percent`}>
+                  <BadgePercent size={14} /> Save {discount}%
+                </span>
               )}
             </div>
             <p>{product.description}</p>
@@ -934,6 +1035,11 @@ function ProductDetails() {
           </div>
         </div>
       </section>
+      <div className="mobile-sticky-cart" aria-label="Mobile product action">
+        <button type="button" onClick={() => addProduct(product)}>
+          <ShoppingBag size={19} /> Add to Cart · {product.price}
+        </button>
+      </div>
     </main>
   )
 }
@@ -1224,7 +1330,7 @@ function Contact() {
         <div className="container contact-grid">
           <article>
             <h2>Order support</h2>
-            <p>WhatsApp: +91 XXXXX XXXXX</p>
+            <p>WhatsApp: +91 77699 99888</p>
             <p>Email: care@arogyaorganic.in</p>
             <p>Hours: 10:00 AM - 7:00 PM</p>
             <ButtonLink to={whatsappUrl()} external>
@@ -1263,7 +1369,7 @@ function Footer() {
         <div>
           <h3>Contact</h3>
           <p>care@arogyaorganic.in</p>
-          <p>+91 XXXXX XXXXX</p>
+          <p>+91 77699 99888</p>
           <a href={whatsappUrl()} target="_blank" rel="noreferrer">
             WhatsApp
           </a>
@@ -1311,6 +1417,98 @@ function WhatsAppAssistant() {
   )
 }
 
+function CartDrawer() {
+  const { items, count, open, setOpen, addProduct, decreaseProduct, removeProduct } = useCart()
+  const subtotal = items.reduce(
+    (sum, { product, quantity }) => sum + priceValue(product.price) * quantity,
+    0
+  )
+  const actualTotal = items.reduce(
+    (sum, { product, quantity }) => sum + priceValue(product.mrp || product.price) * quantity,
+    0
+  )
+  const savings = actualTotal - subtotal
+
+  if (!open) return null
+
+  return (
+    <div className="cart-drawer-backdrop" role="presentation" onClick={() => setOpen(false)}>
+      <aside className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" onClick={(event) => event.stopPropagation()}>
+        <div className="cart-drawer-header">
+          <div>
+            <p className="eyebrow">Your Selection</p>
+            <h2 id="cart-title">Shopping bag ({count})</h2>
+          </div>
+          <button type="button" onClick={() => setOpen(false)} aria-label="Close shopping bag">
+            <X size={20} />
+          </button>
+        </div>
+
+        {items.length === 0 ? (
+          <div className="cart-empty">
+            <ShoppingBag size={30} />
+            <p>Your bag is empty.</p>
+            <button type="button" onClick={() => setOpen(false)}>Continue shopping</button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-items">
+              {items.map(({ product, quantity }) => (
+                <article key={product.slug}>
+                  <img src={product.image} alt="" />
+                  <div className="cart-item-copy">
+                    <h3>{product.name}</h3>
+                    <p>{product.packSize}</p>
+                    <strong>{product.price}</strong>
+                    <div className="cart-quantity" aria-label={`Quantity for ${product.name}`}>
+                      <button type="button" onClick={() => decreaseProduct(product.slug)} aria-label={`Decrease ${product.name} quantity`}>−</button>
+                      <span>{quantity}</span>
+                      <button type="button" onClick={() => addProduct(product)} aria-label={`Increase ${product.name} quantity`}>+</button>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => removeProduct(product.slug)} aria-label={`Remove ${product.name}`}>
+                    <X size={16} />
+                  </button>
+                </article>
+              ))}
+            </div>
+            <div className="cart-trust-badges" aria-label="Product trust badges">
+              {['A2 Ghee', 'Bilona Method', 'FSSAI', 'No Chemicals'].map((badge) => (
+                <span key={badge}><BadgeCheck size={14} /> {badge}</span>
+              ))}
+            </div>
+            <div className="cart-rating">
+              <span aria-label="Five stars">★★★★★</span>
+              <strong>4.9/5</strong>
+              <small>Trusted by Families</small>
+            </div>
+            <div className="cart-totals">
+              <div><span>Actual Price</span><strong>{formatPrice(actualTotal)}</strong></div>
+              <div className="cart-savings"><span>Discount You Get</span><strong>− {formatPrice(savings)}</strong></div>
+              <div><span>Delivery</span><strong>FREE</strong></div>
+              <div className="cart-total"><span>Final Price</span><strong>{formatPrice(subtotal)}</strong></div>
+            </div>
+            <p className="fresh-batch-message"><Sparkles size={16} /> Freshly made batch · Free delivery across India</p>
+            <a className="cart-whatsapp-checkout" href={whatsappCartUrl(items)} target="_blank" rel="noreferrer">
+              🛒 Place Order on WhatsApp
+            </a>
+            <p className="cart-checkout-note">Availability and delivery are confirmed personally on WhatsApp.</p>
+            <div className="cart-confidence">
+              <h3>Why families choose us</h3>
+              <p>Traditional preparation, clean ingredients, careful packing, and personal WhatsApp support.</p>
+              <blockquote>“The grainy texture and aroma feel just like homemade ghee.” <strong>— Rohit M.</strong></blockquote>
+              <details>
+                <summary>How quickly is my order confirmed?</summary>
+                <p>Our team confirms availability, batch freshness, and delivery details on WhatsApp.</p>
+              </details>
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
+  )
+}
+
 function MobileBottomNav() {
   const { pathname } = useLocation()
   const items = [
@@ -1350,7 +1548,7 @@ function App() {
   }, [])
 
   return (
-    <>
+    <CartProvider>
       <ScrollToTop />
       <Navbar />
       <Routes>
@@ -1363,8 +1561,9 @@ function App() {
         <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />
+      <CartDrawer />
       <MobileBottomNav />
-    </>
+    </CartProvider>
   )
 }
 
