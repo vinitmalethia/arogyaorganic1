@@ -4,7 +4,7 @@ export const products = [
   {
     slug: 'puro-a2-cow-ghee',
     name: 'Puro A2 Cow Ghee',
-    price: '₹1,400',
+    price: '₹1,399',
     mrp: '₹1,599',
     packSize: '1kg Jar',
     badge: 'Best Seller',
