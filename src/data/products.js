@@ -22,9 +22,9 @@ export const products = [
   {
     slug: 'organic-wheat-sharbati',
     name: 'Organic Wheat',
-    price: '₹249',
-    mrp: '₹299',
-    packSize: '1kg Whole Grain',
+    price: '₹399',
+    mrp: '₹449',
+    packSize: '5kg Whole Grain',
     badge: 'Stone Mill Ready',
     category: 'Farm Staples',
     image: '/products/organic-wheat.png',
@@ -40,9 +40,9 @@ export const products = [
   {
     slug: 'premium-basmati-rice',
     name: 'Premium Basmati Rice',
-    price: '₹699',
-    mrp: '₹799',
-    packSize: '1kg Long Grain',
+    price: '₹599',
+    mrp: '₹699',
+    packSize: '5kg Long Grain',
     badge: 'Premium Pick',
     category: 'Farm Staples',
     image: '/products/premium-rice.png',
@@ -52,7 +52,7 @@ export const products = [
     usage: 'Rinse gently, soak for 20-30 minutes, and cook for biryani, pulao, steamed rice, or festive meals.',
     faqs: [
       ['Is this basmati rice?', 'Yes, it is a premium aged basmati long grain rice.'],
-      ['What is the pack size?', 'This product is listed as a 1kg pack.']
+      ['What is the pack size?', 'This product is listed as a 5kg pack.']
     ]
   },
   {

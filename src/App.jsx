@@ -31,8 +31,6 @@ import { collections, products, whatsappNumber } from './data/products.js'
 
 const farmHero =
   'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2200&q=80'
-const farmImage =
-  'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1400&q=80'
 const ayurvedaImage =
   'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80'
 const founderImage =
@@ -54,27 +52,6 @@ const journeySteps = [
   ['02', 'Ethical sourcing', 'We work with people who understand traditional food, Desi cow care, and patient production.'],
   ['03', 'Traditional processing', 'Bilona churning, small-batch packing, and low-intervention methods help preserve natural character.'],
   ['04', 'Home delivery', 'Every order is confirmed personally on WhatsApp, so families know exactly what they are receiving.']
-]
-
-const farmerStories = [
-  {
-    name: 'Savitri Devi',
-    place: 'Organic vegetable grower',
-    image: farmCareImage,
-    story: 'Her family has always believed that healthy soil gives food its quiet strength. Our farm sourcing begins with that same patience.'
-  },
-  {
-    name: 'Raghav Singh',
-    place: 'Desi cow care partner',
-    image: farmImage,
-    story: 'Clean fodder, shade, water, and daily attention guide the way milk and ghee should begin.'
-  },
-  {
-    name: 'Meera Joshi',
-    place: 'Ayurvedic herbs curator',
-    image: herbsImage,
-    story: 'Herbs are selected for freshness, aroma, and traditional use, then blended with restraint instead of excess.'
-  }
 ]
 
 const knowledgePosts = [
@@ -202,7 +179,7 @@ function Navbar() {
   const navItems = [
     ['HOME', '/'],
     ['SHOP', '/shop'],
-    ['THE FARM', '/the-farm'],
+    ['OUR PROCESS', '/the-farm'],
     ['AYURVEDA', '/ayurveda']
   ]
 
@@ -230,9 +207,6 @@ function Navbar() {
               <Link to="/contact" onClick={closeMenus}>
                 Contact Us
               </Link>
-              <a href="/#faq" onClick={closeMenus}>
-                FAQ
-              </a>
             </div>
           </div>
         </div>
@@ -524,13 +498,6 @@ function Home() {
     return () => window.removeEventListener('scroll', updateHeroParallax)
   }, [])
 
-  const faqItems = [
-    ['Are Arogya Organic products certified organic?', 'We work with clean farms and small-batch producers who follow chemical-free cultivation and traditional processing standards.'],
-    ['How do I place an order?', 'Choose a product and tap Order on WhatsApp. Our team confirms availability, pack size, and delivery details.'],
-    ['Do you use preservatives?', 'Our pantry staples, honey, ghee, oils, and spices are selected for purity and packed without unnecessary additives.'],
-    ['Where do you deliver?', 'Delivery availability is confirmed over WhatsApp based on your city and product selection.']
-  ]
-
   return (
     <main className="page home-page">
       <section className="hero">
@@ -596,20 +563,6 @@ function Home() {
         </div>
       </section>
 
-      <section className="section oat-band" data-aos="fade-up">
-        <SectionIntro eyebrow="Why Choose Us?" title="Clean food, clear conscience" />
-        <div className="container trust-grid">
-          {['FSSAI Certified', 'Chemical Free', 'Farm Fresh', '100% Natural', 'Traditional Methods'].map(
-            (item) => (
-              <div className="trust-item" key={item}>
-                <Leaf size={22} />
-                <span>{item}</span>
-              </div>
-            )
-          )}
-        </div>
-      </section>
-
       <section className="section" data-aos="fade-up">
         <SectionIntro eyebrow="Farm to Home" title="A transparent journey from soil to your kitchen">
           Every product follows a careful path designed around trust, traditional methods, and personal ordering.
@@ -625,73 +578,11 @@ function Home() {
         </div>
       </section>
 
-      <section className="section oat-band" data-aos="fade-up">
-        <SectionIntro eyebrow="Meet Our Farmers" title="Real hands behind every batch" />
-        <div className="container farmer-grid">
-          {farmerStories.map((farmer) => (
-            <article className="farmer-card" key={farmer.name} data-aos="fade-up">
-              <img src={farmer.image} alt={farmer.name} />
-              <div>
-                <p>{farmer.place}</p>
-                <h3>{farmer.name}</h3>
-                <span>{farmer.story}</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="stats-band">
         <div className="container stats-grid">
           <AnimatedStat value="500" suffix="+" label="Partner farmers" />
           <AnimatedStat value="10000" suffix="+" label="Happy families" />
           <AnimatedStat value="100" suffix="%" label="Organic promise" />
-        </div>
-      </section>
-
-      <section className="section home-ghee-story" data-aos="fade-up">
-        <SectionIntro eyebrow="From Cow to Kitchen" title="The story behind our Bilona ghee">
-          Three simple steps. Pure milk, patient preparation, and nothing unnecessary.
-        </SectionIntro>
-        <div className="container home-ghee-story-grid">
-          {[
-            {
-              step: '01 · Milk source',
-              title: 'From cared-for Desi cows',
-              body: 'Our milk comes from Desi cows raised in clean surroundings with natural fodder and attentive care.',
-              image: farmCareImage,
-              alt: 'Desi cow care at an Indian farm'
-            },
-            {
-              step: '02 · Bilona method',
-              title: 'Curd, churned into butter',
-              body: 'Milk is set into curd, traditionally churned to separate butter, then gently heated into aromatic ghee.',
-              image: gheeServingImage,
-              alt: 'Traditional ghee served in an Indian kitchen'
-            },
-            {
-              step: '03 · Wholesome choice',
-              title: 'Pure, useful everyday nourishment',
-              body: 'Slow preparation preserves its natural aroma and character, with no artificial colours, flavours, or preservatives.',
-              image: products[0].image,
-              alt: 'A jar of Arogya Organic A2 cow ghee',
-              product: true
-            }
-          ].map((story) => (
-            <article className={`home-ghee-story-card ${story.product ? 'product-image' : ''}`} key={story.step} data-aos="fade-up">
-              <div className="home-ghee-story-image">
-                <img src={story.image} alt={story.alt} />
-                <span>{story.step}</span>
-              </div>
-              <div>
-                <h3>{story.title}</h3>
-                <p>{story.body}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-        <div className="container home-ghee-story-action">
-          <Link to="/shop/puro-a2-cow-ghee">Discover our A2 Bilona ghee</Link>
         </div>
       </section>
 
@@ -713,12 +604,6 @@ function Home() {
         </div>
       </section>
 
-      <section className="section oat-band" id="faq">
-        <SectionIntro eyebrow="FAQ" title="Simple answers before you order" />
-        <div className="container faq-wrap">
-          <FAQ items={faqItems} />
-        </div>
-      </section>
     </main>
   )
 }
@@ -1057,32 +942,104 @@ function PageHeader({ eyebrow, title, body }) {
 }
 
 function Farm() {
+  const processSteps = [
+    {
+      number: 'Step 1',
+      eyebrow: 'Sourcing',
+      icon: Sprout,
+      title: 'We Start with the Best',
+      body: 'We carefully select raw materials directly from trusted farmers who follow natural and sustainable farming practices.',
+      image: '/process/farmer-wheat-hand.jpg',
+      alt: 'Farmer harvesting wheat in green fields'
+    },
+    {
+      number: 'Step 2',
+      eyebrow: 'Natural Farming',
+      icon: Leaf,
+      title: 'Chemical-Free Cultivation',
+      body: 'Our crops are grown without harmful pesticides or synthetic chemicals, allowing nature to preserve their true nutrition and taste.',
+      highlights: ['No Harmful Chemicals', 'Sustainable Farming', 'Healthy Soil'],
+      image: '/process/rice-plate.jpg',
+      alt: 'Cooked white rice served on a plate'
+    },
+    {
+      number: 'Step 3',
+      eyebrow: 'Traditional Preparation',
+      icon: BadgeCheck,
+      title: 'Crafted the Traditional Way',
+      body: 'Instead of mass industrial processing, we use time-tested traditional methods that help preserve nutrition, aroma, and authenticity.',
+      highlights: ['Bilona method for A2 Ghee', 'Sun drying', 'Stone grinding', 'Slow processing'],
+      image: '/process/traditional-ghee-pot.jpg',
+      alt: 'Traditional ghee served from an earthen pot'
+    },
+    {
+      number: 'Step 4',
+      eyebrow: 'Quality Testing',
+      icon: ShieldCheck,
+      title: 'Every Batch is Tested',
+      body: 'Before reaching your home, every product undergoes strict quality checks.',
+      image: '/process/ghee-jar.jpg',
+      alt: 'Golden ghee being checked for texture and clarity'
+    },
+    {
+      number: 'Step 5',
+      eyebrow: 'Hygienic Packaging',
+      icon: PackageCheck,
+      title: 'Packed with Care',
+      body: 'Products are packed hygienically to maintain freshness and preserve their natural goodness.',
+      image: '/process/packing-box.jpg',
+      alt: 'Products being packed carefully in a shipping box'
+    },
+    {
+      number: 'Step 6',
+      eyebrow: 'Delivered to You',
+      icon: Truck,
+      title: 'Fresh at Your Doorstep',
+      body: 'Once packed, your order is carefully shipped so you receive products that are fresh, authentic, and ready to use.'
+    }
+  ]
+
   return (
-    <main className="page">
-      <PageHeader
-        eyebrow="The Farm"
-        title="Where care becomes nourishment"
-        body="Our journey began with cows nurtured with love, natural fodder, and respect. Their milk became the foundation of handcrafted products prepared according to authentic Ayurvedic principles."
-      />
-      <SplitSection
-        image={farmCareImage}
-        eyebrow="Rural Indian Wisdom"
-        title="Raised with patience, not pressure"
-        body="We believe true purity begins before production. Ethical care, clean surroundings, natural feeding, and unhurried preparation help preserve the sattvic quality of every batch."
-        link="/shop"
-        linkText="Shop pure products"
-      />
-      <section className="section oat-band">
-        <div className="container promise-band">
-          <SectionIntro eyebrow="Our Promise" title="A way of life, not just a product" />
-          <div className="promise-grid">
-            {promiseItems.map((item) => (
-              <div key={item}>
-                <BadgeCheck size={18} />
-                <span>{item}</span>
+    <main className="page process-page">
+      <section className="process-hero">
+        <img src="/process/cowshed.jpg" alt="Cows cared for in a clean farm shed" />
+        <div className="process-hero-overlay" />
+        <div className="container process-hero-content">
+          <p className="eyebrow">Our Process</p>
+          <h1>From Nature to Your Home</h1>
+          <p>Every product is crafted with purity, traditional wisdom, and uncompromising quality.</p>
+        </div>
+      </section>
+
+      <section className="section process-timeline" aria-label="Our production process">
+        <div className="container process-steps">
+          {processSteps.map(({ number, eyebrow, icon: Icon, title, body, highlights = [], image, alt }, index) => (
+            <article className={`process-step ${image ? 'with-image' : ''}`} key={title} data-aos="fade-up">
+              <div className="process-step-copy">
+                <span className="process-step-number">{number} - {eyebrow}</span>
+                <Icon size={34} />
+                <h2>{title}</h2>
+                <p>{body}</p>
+                {highlights.length > 0 && (
+                  <ul>
+                    {highlights.map((highlight) => (
+                      <li key={highlight}>
+                        <BadgeCheck size={17} /> {highlight}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            ))}
-          </div>
+              {image && (
+                <figure className="process-step-image">
+                  <img src={image} alt={alt} />
+                </figure>
+              )}
+              <span className="process-step-index" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+            </article>
+          ))}
         </div>
       </section>
     </main>
@@ -1331,7 +1288,7 @@ function Contact() {
           <article>
             <h2>Order support</h2>
             <p>WhatsApp: +91 77699 99888</p>
-            <p>Email: care@arogyaorganic.in</p>
+            <p>Email: arogyaorganicteam@gmail.com</p>
             <p>Hours: 10:00 AM - 7:00 PM</p>
             <ButtonLink to={whatsappUrl()} external>
               <MessageCircle size={18} /> Chat on WhatsApp
@@ -1436,13 +1393,13 @@ function Footer() {
         <div className="footer-links">
           <h3>Quick links</h3>
           <Link to="/shop">Shop</Link>
-          <Link to="/the-farm">The Farm</Link>
+          <Link to="/the-farm">Our Process</Link>
           <Link to="/ayurveda">Ayurveda</Link>
           <Link to="/about">About Us</Link>
         </div>
         <div className="footer-contact">
           <h3>Contact</h3>
-          <a href="mailto:care@arogyaorganic.in">care@arogyaorganic.in</a>
+          <a href="mailto:arogyaorganicteam@gmail.com">arogyaorganicteam@gmail.com</a>
           <a href="tel:+917769999888">+91 77699 99888</a>
           <a className="footer-whatsapp" href={whatsappUrl()} target="_blank" rel="noreferrer">
             <MessageCircle size={15} /> WhatsApp
@@ -1451,7 +1408,7 @@ function Footer() {
         <div className="footer-social">
           <h3>Social</h3>
           <div>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://instagram.com/arogya.organic" target="_blank" rel="noreferrer">Instagram</a>
             <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
             <a href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
           </div>
@@ -1588,6 +1545,7 @@ function MobileBottomNav() {
   const items = [
     ['Home', '/', Leaf, pathname === '/'],
     ['Shop', '/shop', ShoppingBag, pathname.startsWith('/shop')],
+    ['Our Process', '/the-farm', Sprout, pathname === '/the-farm'],
     ['Ayurveda', '/ayurveda', BookOpen, pathname === '/ayurveda'],
     ['Contact', '/contact', User, pathname === '/contact']
   ]
