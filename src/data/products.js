@@ -4,9 +4,9 @@ export const products = [
   {
     slug: 'puro-a2-cow-ghee',
     name: 'Puro A2 Cow Ghee',
-    price: '₹999',
-    mrp: '₹1,199',
-    packSize: '500g Jar',
+    price: '₹1,400',
+    mrp: '₹1,599',
+    packSize: '1kg Jar',
     badge: 'Best Seller',
     category: 'Traditional Dairy',
     image: '/products/puro-ghee.png',
