@@ -2234,19 +2234,23 @@ h3 {
 .product-media {
   position: relative;
   overflow: hidden;
+  min-height: clamp(178px, 20vw, 260px);
   background: #f8f5ef;
 }
 
 .product-media a {
-  display: block;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
 .product-media img {
   position: relative;
   z-index: 1;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  padding: 20px;
+  height: 100%;
+  aspect-ratio: 1 / 0.86;
+  padding: clamp(8px, 1.3vw, 14px);
   object-fit: contain;
   transition: transform 400ms ease;
 }
@@ -3891,6 +3895,14 @@ h3 {
 
   .shop-hero {
     padding-block: 30px 24px;
+  }
+
+  .product-media {
+    min-height: clamp(188px, 52vw, 230px);
+  }
+
+  .product-media img {
+    padding: 8px;
   }
 
   .shop-hero-copy h1 {
