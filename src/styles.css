@@ -1832,13 +1832,13 @@ h3 {
   color: #6f7d4e;
 }
 
-.product-showcase-section .category-pills span {
+.product-showcase-section .category-pills button {
   border-color: #e3ddd2;
   background: #fffdf8;
   color: #6b655e;
 }
 
-.product-showcase-section .category-pills span:first-child {
+.product-showcase-section .category-pills button.active {
   border-color: #6f7d4e;
   background: #6f7d4e;
   color: #fffdf8;
@@ -1856,7 +1856,7 @@ h3 {
   max-width: 520px;
 }
 
-.category-pills span {
+.category-pills button {
   display: inline-flex;
   align-items: center;
   min-height: 38px;
@@ -1867,9 +1867,23 @@ h3 {
   color: #6b655e;
   font-size: 0.78rem;
   font-weight: 800;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
-.category-pills span:first-child {
+.category-pills button:hover,
+.category-pills button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(111, 125, 78, 0.5);
+  color: #4a6741;
+}
+
+.category-pills button:focus-visible {
+  outline: 2px solid rgba(111, 125, 78, 0.42);
+  outline-offset: 3px;
+}
+
+.category-pills button.active {
   border-color: #6f7d4e;
   background: #6f7d4e;
   color: #fffdf8;
@@ -4186,7 +4200,7 @@ h3 {
     width: 100%;
   }
 
-  .category-pills span {
+  .category-pills button {
     flex: 0 0 auto;
     justify-content: center;
     text-align: center;

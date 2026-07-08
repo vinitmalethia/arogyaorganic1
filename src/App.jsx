@@ -729,6 +729,7 @@ function StoryFeature({ image, eyebrow, title, body, points = [], reverse = fals
 
 function Shop() {
   const featuredProduct = products[0]
+  const [activeCategory, setActiveCategory] = useState('All Products')
   const shopFaqItems = [
     ['How do I order?', 'Tap Order on WhatsApp or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
     ['Are there preservatives?', 'No. Our products are selected around natural ingredients, traditional methods, and minimal intervention.'],
@@ -741,6 +742,16 @@ function Shop() {
     [PackageCheck, 'Premium packed products']
   ]
   const categoryChips = ['All Products', 'Ghee', 'Grains', 'Ayurveda', 'Natural Living']
+  const categoryFilters = {
+    Ghee: ['Traditional Dairy'],
+    Grains: ['Farm Staples'],
+    Ayurveda: ['Ayurvedic Wellness'],
+    'Natural Living': ['Natural Living']
+  }
+  const visibleProducts =
+    activeCategory === 'All Products'
+      ? products
+      : products.filter((product) => categoryFilters[activeCategory]?.includes(product.category))
 
   return (
     <main className="page">
@@ -762,15 +773,24 @@ function Shop() {
               <p className="eyebrow">Curated Catalogue</p>
               <h2>Choose your organic essentials</h2>
             </div>
-            <div className="category-pills" aria-label="Product categories">
+            <div className="category-pills" role="tablist" aria-label="Product categories">
               {categoryChips.map((chip) => (
-                <span key={chip}>{chip}</span>
+                <button
+                  key={chip}
+                  type="button"
+                  className={chip === activeCategory ? 'active' : ''}
+                  role="tab"
+                  aria-selected={chip === activeCategory}
+                  onClick={() => setActiveCategory(chip)}
+                >
+                  {chip}
+                </button>
               ))}
             </div>
           </div>
 
           <div className="product-grid">
-            {products.map((product) => (
+            {visibleProducts.map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>
@@ -1507,7 +1527,7 @@ function Footer() {
           <div>
             <a href="https://instagram.com/arogya.organic" target="_blank" rel="noreferrer">Instagram</a>
             <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+            <a href="https://youtube.com/@gaumatavlogss?si=CWFUj6BVaYFCYksq" target="_blank" rel="noreferrer">YouTube</a>
           </div>
         </div>
       </div>
