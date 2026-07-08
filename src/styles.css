@@ -3950,18 +3950,13 @@ h3 {
     width: min(100% - 28px, 1120px);
   }
 
-  .site-header .brand span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+  .site-header .brand img {
+    width: 50px;
+    height: 50px;
   }
 
-  .site-header .brand img {
-    width: 44px;
-    height: 44px;
+  .site-header .brand span {
+    font-size: 1.25rem;
   }
 
   .nav-icons {
