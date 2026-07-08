@@ -26,7 +26,7 @@ import {
   Users,
   X
 } from 'lucide-react'
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { collections, products, whatsappNumber } from './data/products.js'
 
 const farmHero =
@@ -75,7 +75,7 @@ function whatsappUrl(productName) {
 }
 
 function whatsappCartUrl(items) {
-  const orderLines = items.map(({ product, quantity }) => `• ${product.name} × ${quantity}`).join('\n')
+  const orderLines = items.map(({ product, quantity }) => `• ${productOrderName(product)} × ${quantity}`).join('\n')
   const total = items.reduce((sum, { product, quantity }) => sum + priceValue(product.price) * quantity, 0)
   const text = `Hello Arogya Organic, I would like to order:\n${orderLines}\n\nTotal: ${formatPrice(total)}`
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`
@@ -87,6 +87,26 @@ function priceValue(price) {
 
 function formatPrice(value) {
   return `₹${value.toLocaleString('en-IN')}`
+}
+
+function productCartId(product) {
+  return product.cartId || product.slug
+}
+
+function productOrderName(product) {
+  return product.packSize ? `${product.name} (${product.packSize})` : product.name
+}
+
+function productWithVariant(product, variant) {
+  if (!variant) return product
+
+  return {
+    ...product,
+    cartId: `${product.slug}-${variant.id}`,
+    packSize: variant.packSize,
+    price: variant.price,
+    mrp: variant.mrp
+  }
 }
 
 function discountPercent(product) {
@@ -104,25 +124,26 @@ function CartProvider({ children }) {
 
   const addProduct = (product) => {
     setItems((current) => {
-      const existing = current.find((item) => item.product.slug === product.slug)
+      const id = productCartId(product)
+      const existing = current.find((item) => productCartId(item.product) === id)
       if (existing) {
         return current.map((item) =>
-          item.product.slug === product.slug ? { ...item, quantity: item.quantity + 1 } : item
+          productCartId(item.product) === id ? { ...item, quantity: item.quantity + 1 } : item
         )
       }
       return [...current, { product, quantity: 1 }]
     })
   }
 
-  const removeProduct = (slug) => {
-    setItems((current) => current.filter((item) => item.product.slug !== slug))
+  const removeProduct = (id) => {
+    setItems((current) => current.filter((item) => productCartId(item.product) !== id))
   }
 
-  const decreaseProduct = (slug) => {
+  const decreaseProduct = (id) => {
     setItems((current) =>
       current
         .map((item) =>
-          item.product.slug === slug ? { ...item, quantity: item.quantity - 1 } : item
+          productCartId(item.product) === id ? { ...item, quantity: item.quantity - 1 } : item
         )
         .filter((item) => item.quantity > 0)
     )
@@ -187,7 +208,8 @@ function Navbar() {
     <header className="site-header">
       <nav className="nav-shell" aria-label="Main navigation">
         <Link to="/" className="brand" onClick={closeMenus}>
-          Arogya Organic
+          <img src="/brand/arogya-logo.png" alt="" />
+          <span>Arogya Organic</span>
         </Link>
 
         <div className={`nav-links ${open ? 'is-open' : ''}`}>
@@ -269,14 +291,42 @@ function CollectionCard({ collection }) {
 }
 
 function ProductCard({ product }) {
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variants?.[0]?.id || '')
+  const selectedVariant = product.variants?.find((variant) => variant.id === selectedVariantId)
+  const selectedProduct = productWithVariant(product, selectedVariant)
   const rating = product.rating ?? '4.9'
   const reviews = product.reviews ?? '20'
-  const discount = discountPercent(product)
+  const discount = discountPercent(selectedProduct)
   const [saved, setSaved] = useState(false)
+  const [added, setAdded] = useState(false)
+  const [addAnimationKey, setAddAnimationKey] = useState(0)
+  const addedTimeout = useRef(null)
   const { addProduct } = useCart()
 
+  useEffect(() => {
+    return () => {
+      if (addedTimeout.current) {
+        clearTimeout(addedTimeout.current)
+      }
+    }
+  }, [])
+
+  const handleAddToCart = () => {
+    addProduct(selectedProduct)
+    setAdded(true)
+    setAddAnimationKey((value) => value + 1)
+
+    if (addedTimeout.current) {
+      clearTimeout(addedTimeout.current)
+    }
+
+    addedTimeout.current = setTimeout(() => {
+      setAdded(false)
+    }, 1200)
+  }
+
   return (
-    <article className="product-card fade-in" data-aos="fade-up">
+    <article className={`product-card product-card-${product.slug} fade-in`} data-aos="fade-up">
       <div className="product-media">
         <span className="product-glow" />
         {product.badge && <span className="product-badge">{product.badge}</span>}
@@ -308,11 +358,26 @@ function ProductCard({ product }) {
           <h3>{product.name}</h3>
         </Link>
 
-        <span className="pack-size">{product.packSize}</span>
+        {product.variants ? (
+          <div className="pack-selector" aria-label={`Choose pack size for ${product.name}`}>
+            {product.variants.map((variant) => (
+              <button
+                key={variant.id}
+                type="button"
+                className={variant.id === selectedVariantId ? 'active' : ''}
+                onClick={() => setSelectedVariantId(variant.id)}
+              >
+                {variant.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="pack-size">{product.packSize}</span>
+        )}
 
         <div className="product-price-row">
-          <strong className="product-price">{product.price}</strong>
-          {product.mrp && <span className="product-mrp">{product.mrp}</span>}
+          <strong className="product-price">{selectedProduct.price}</strong>
+          {selectedProduct.mrp && <span className="product-mrp">{selectedProduct.mrp}</span>}
           {discount > 0 && (
             <span className="discount-pill" aria-label={`Save ${discount} percent`}>
               <BadgePercent size={13} /> Save {discount}%
@@ -321,12 +386,22 @@ function ProductCard({ product }) {
         </div>
 
         <div className="product-card-actions">
-          <button type="button" className="quick-add-btn" onClick={() => addProduct(product)}>
-            <ShoppingBag size={16} /> Quick Add
+          <button
+            type="button"
+            className={`quick-add-btn ${added ? 'added' : ''}`}
+            onClick={handleAddToCart}
+            aria-live="polite"
+          >
+            <ShoppingBag size={16} /> {added ? 'Added' : 'Add to Cart'}
+            {added && (
+              <span key={addAnimationKey} className="cart-add-burst" aria-hidden="true">
+                Added
+              </span>
+            )}
           </button>
           <a
             className="whatsapp-order-btn"
-            href={whatsappUrl(product.name)}
+            href={whatsappUrl(productOrderName(selectedProduct))}
             target="_blank"
             rel="noreferrer"
             aria-label={`Order ${product.name} on WhatsApp`}
@@ -839,8 +914,15 @@ function ProductDetails() {
   const { slug } = useParams()
   const { addProduct } = useCart()
   const product = products.find((item) => item.slug === slug)
-  const discount = discountPercent(product)
+  const [selectedVariantId, setSelectedVariantId] = useState(product?.variants?.[0]?.id || '')
+  const selectedVariant = product?.variants?.find((variant) => variant.id === selectedVariantId)
+  const selectedProduct = product ? productWithVariant(product, selectedVariant) : null
+  const discount = discountPercent(selectedProduct)
   const related = useMemo(() => products.filter((item) => item.slug !== slug).slice(0, 3), [slug])
+
+  useEffect(() => {
+    setSelectedVariantId(product?.variants?.[0]?.id || '')
+  }, [product?.slug])
 
   if (!product) {
     return (
@@ -862,13 +944,27 @@ function ProductDetails() {
             <h1>{product.name}</h1>
             <div className="detail-meta">
               {product.badge && <span>{product.badge}</span>}
-              {product.packSize && <span>{product.packSize}</span>}
+              {selectedProduct?.packSize && <span>{selectedProduct.packSize}</span>}
             </div>
+            {product.variants && (
+              <div className="pack-selector detail-pack-selector" aria-label={`Choose pack size for ${product.name}`}>
+                {product.variants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    className={variant.id === selectedVariantId ? 'active' : ''}
+                    onClick={() => setSelectedVariantId(variant.id)}
+                  >
+                    {variant.label}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="detail-price">
-              <strong>{product.price}</strong>
-              {product.mrp && (
+              <strong>{selectedProduct.price}</strong>
+              {selectedProduct.mrp && (
                 <p>
-                  MRP <span>{product.mrp}</span>
+                  MRP <span>{selectedProduct.mrp}</span>
                 </p>
               )}
               {discount > 0 && (
@@ -879,7 +975,7 @@ function ProductDetails() {
             </div>
             <p>{product.description}</p>
             <div className="detail-actions">
-              <ButtonLink to={whatsappUrl(product.name)} external>
+              <ButtonLink to={whatsappUrl(productOrderName(selectedProduct))} external>
                 <MessageCircle size={18} /> Order on WhatsApp
               </ButtonLink>
               <ButtonLink to="/shop" variant="outline">
@@ -921,8 +1017,8 @@ function ProductDetails() {
         </div>
       </section>
       <div className="mobile-sticky-cart" aria-label="Mobile product action">
-        <button type="button" onClick={() => addProduct(product)}>
-          <ShoppingBag size={19} /> Add to Cart · {product.price}
+        <button type="button" onClick={() => addProduct(selectedProduct)}>
+          <ShoppingBag size={19} /> Add to Cart · {selectedProduct.price}
         </button>
       </div>
     </main>
@@ -1386,7 +1482,8 @@ function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <Link to="/" className="brand">
-            Arogya Organic
+            <img src="/brand/arogya-logo.png" alt="" />
+            <span>Arogya Organic</span>
           </Link>
           <p>Farm fresh, chemical-free, natural products delivered with trust.</p>
         </div>
@@ -1485,19 +1582,19 @@ function CartDrawer() {
           <>
             <div className="cart-items">
               {items.map(({ product, quantity }) => (
-                <article key={product.slug}>
+                <article key={productCartId(product)}>
                   <img src={product.image} alt="" />
                   <div className="cart-item-copy">
                     <h3>{product.name}</h3>
                     <p>{product.packSize}</p>
                     <strong>{product.price}</strong>
                     <div className="cart-quantity" aria-label={`Quantity for ${product.name}`}>
-                      <button type="button" onClick={() => decreaseProduct(product.slug)} aria-label={`Decrease ${product.name} quantity`}>−</button>
+                      <button type="button" onClick={() => decreaseProduct(productCartId(product))} aria-label={`Decrease ${productOrderName(product)} quantity`}>−</button>
                       <span>{quantity}</span>
-                      <button type="button" onClick={() => addProduct(product)} aria-label={`Increase ${product.name} quantity`}>+</button>
+                      <button type="button" onClick={() => addProduct(product)} aria-label={`Increase ${productOrderName(product)} quantity`}>+</button>
                     </div>
                   </div>
-                  <button type="button" onClick={() => removeProduct(product.slug)} aria-label={`Remove ${product.name}`}>
+                  <button type="button" onClick={() => removeProduct(productCartId(product))} aria-label={`Remove ${productOrderName(product)}`}>
                     <X size={16} />
                   </button>
                 </article>

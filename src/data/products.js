@@ -7,6 +7,10 @@ export const products = [
     price: '₹1,399',
     mrp: '₹1,599',
     packSize: '1kg Jar',
+    variants: [
+      { id: '1kg', label: '1kg', packSize: '1kg Jar', price: '₹1,399', mrp: '₹1,599' },
+      { id: 'half-kg', label: '1/2kg', packSize: '1/2kg Jar', price: '₹749', mrp: '₹849' }
+    ],
     badge: 'Best Seller',
     category: 'Traditional Dairy',
     image: '/products/puro-ghee.png',
@@ -61,6 +65,10 @@ export const products = [
     price: '₹199',
     mrp: '₹249',
     packSize: 'Eco Pack',
+    variants: [
+      { id: '6-pieces', label: '6 pieces', packSize: '6 Pieces', price: '₹199', mrp: '₹249' },
+      { id: '10-pieces', label: '10 pieces', packSize: '10 Pieces', price: '₹299', mrp: '₹349' }
+    ],
     badge: 'Farm Ritual',
     category: 'Natural Living',
     image: '/products/cow-dung-cakes.png',
