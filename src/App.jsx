@@ -5,7 +5,6 @@ import {
   BadgeCheck,
   BadgePercent,
   BookOpen,
-  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -728,14 +727,7 @@ function StoryFeature({ image, eyebrow, title, body, points = [], reverse = fals
 }
 
 function Shop() {
-  const featuredProduct = products[0]
   const [activeCategory, setActiveCategory] = useState('All Products')
-  const shopFaqItems = [
-    ['How do I order?', 'Tap Order on WhatsApp or Chat on WhatsApp. Our team confirms product availability, pack size, delivery city, and final order details.'],
-    ['Are there preservatives?', 'No. Our products are selected around natural ingredients, traditional methods, and minimal intervention.'],
-    ['Can I ask for product guidance?', 'Yes. Tap Chat on WhatsApp and share your family size, routine, and preferred products.'],
-    ['Do you offer seasonal recommendations?', 'Yes. Our seasonal wellness collections are designed around daily rituals, digestion, pantry staples, and traditional living.']
-  ]
   const shopBenefits = [
     [ShieldCheck, 'Quality checked batches'],
     [Truck, 'Delivery coordinated on WhatsApp'],
@@ -797,59 +789,9 @@ function Shop() {
         </div>
       </section>
 
-      <section className="section" data-aos="fade-up">
-        <div className="container spotlight">
-          <div className="spotlight-image">
-            <img src={featuredProduct.image} alt={featuredProduct.name} />
-          </div>
-          <div className="spotlight-copy">
-            <p className="eyebrow">Featured Product</p>
-            <h2>{featuredProduct.name}</h2>
-            <p>{featuredProduct.description}</p>
-            <div className="transparency-grid">
-              {['A2 cow milk source', 'Traditional Bilona method', 'No preservatives', 'Small-batch prepared'].map((item) => (
-                <span key={item}>
-                  <BadgeCheck size={17} /> {item}
-                </span>
-              ))}
-            </div>
-            <ButtonLink to={`/shop/${featuredProduct.slug}`}>View full details</ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      <section className="section oat-band" data-aos="fade-up">
-        <SectionIntro eyebrow="Seasonal Wellness" title="Collections for everyday rituals" />
-        <div className="container seasonal-grid">
-          {seasonalCollections.map(([title, body, image]) => (
-            <article key={title} className="seasonal-card" data-aos="fade-up">
-              <img src={image} alt={title} />
-              <div>
-                <CalendarDays size={20} />
-                <h3>{title}</h3>
-                <p>{body}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="shop-order-band">
-        <div className="container order-band-inner">
-          <div>
-            <p className="eyebrow">Personal ordering</p>
-            <h2>Need help choosing the right product?</h2>
-            <p>Message us your family size, preferred products, and delivery city. We will suggest the right pack and confirm availability.</p>
-          </div>
-          <ButtonLink to={whatsappUrl()} external>
-            <MessageCircle size={18} /> Chat on WhatsApp
-          </ButtonLink>
-        </div>
-      </section>
-      <section className="section oat-band">
-        <SectionIntro eyebrow="FAQ" title="Questions before you order" />
-        <div className="container faq-wrap">
-          <FAQ items={shopFaqItems} />
+      <section className="shop-coming-soon-banner" aria-label="New products coming soon" data-aos="fade-up">
+        <div className="container">
+          <img src="/banners/new-products-coming-soon.png" alt="Arogya Organic new products coming soon" />
         </div>
       </section>
     </main>

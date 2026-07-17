@@ -1844,6 +1844,19 @@ h3 {
   color: #fffdf8;
 }
 
+.shop-coming-soon-banner {
+  padding: clamp(28px, 5vw, 64px) 0 clamp(56px, 7vw, 96px);
+  background: #f8f5ef;
+}
+
+.shop-coming-soon-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 18px 45px rgba(46, 42, 37, 0.12);
+}
+
 .shop-toolbar h2 {
   font-size: clamp(2rem, 4vw, 3.6rem);
 }
