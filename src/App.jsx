@@ -28,8 +28,7 @@ import {
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { collections, products, whatsappNumber } from './data/products.js'
 
-const farmHero =
-  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2200&q=80'
+const farmHero = '/hero/organic-products-hero.png'
 const ayurvedaImage =
   'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=80'
 const founderImage =
@@ -161,8 +160,23 @@ function useCart() {
   return useContext(CartContext)
 }
 
+function WhatsAppIcon({ size = 18 }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="whatsapp-icon"
+      fill="currentColor"
+      height={size}
+      viewBox="0 0 24 24"
+      width={size}
+    >
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2 22l5.29-1.39a9.84 9.84 0 0 0 4.75 1.21h.01c5.46 0 9.91-4.44 9.91-9.91C21.96 6.45 17.51 2 12.04 2Zm0 18.14h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.14.82.84-3.06-.2-.31a8.16 8.16 0 0 1-1.25-4.36c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.81c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.24 3.74.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29Z" />
+    </svg>
+  )
+}
+
 function ButtonLink({ to, children, variant = 'primary', external = false }) {
-  const className = `btn ${variant === 'outline' ? 'btn-outline' : 'btn-primary'}`
+  const className = `btn btn-${variant}`
   if (external) {
     return (
       <a className={className} href={to} target="_blank" rel="noreferrer">
@@ -558,6 +572,38 @@ function TrustBadgeStrip() {
   )
 }
 
+function WheatStem({ size = 34 }) {
+  return (
+    <svg className="wheat-stem" aria-hidden="true" width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <path d="M20 5v30" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+      <path d="M19 12c-5-3-7-6-6-9 5 1 7 4 6 9Zm2 0c5-3 7-6 6-9-5 1-7 4-6 9ZM19 20c-5-3-7-6-6-9 5 1 7 4 6 9Zm2 0c5-3 7-6 6-9-5 1-7 4-6 9ZM19 28c-5-3-7-6-6-9 5 1 7 4 6 9Zm2 0c5-3 7-6 6-9-5 1-7 4-6 9Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function HeroFloatingElements() {
+  return (
+    <div className="hero-floating-elements" aria-hidden="true">
+      {[...Array(5)].map((_, index) => (
+        <span key={`leaf-${index}`} className={`hero-float hero-float-leaf hero-leaf-${index + 1}`}>
+          <Leaf size={18 + (index % 3) * 5} />
+        </span>
+      ))}
+      {[...Array(3)].map((_, index) => (
+        <span key={`wheat-${index}`} className={`hero-float hero-float-wheat hero-wheat-${index + 1}`}>
+          <WheatStem size={30 + index * 4} />
+        </span>
+      ))}
+      {[...Array(5)].map((_, index) => (
+        <span key={`seed-${index}`} className={`hero-float hero-float-seed hero-seed-${index + 1}`} />
+      ))}
+      {[...Array(5)].map((_, index) => (
+        <span key={`circle-${index}`} className={`hero-float hero-float-circle hero-circle-${index + 1}`} />
+      ))}
+    </div>
+  )
+}
+
 function Home() {
   useEffect(() => {
     const updateHeroParallax = () => {
@@ -577,13 +623,7 @@ function Home() {
       <section className="hero">
         <img className="hero-bg" src={farmHero} alt="Warm sunlight over organic farm fields" />
         <div className="hero-overlay" />
-        <div className="floating-leaves" aria-hidden="true">
-          {[...Array(8)].map((_, index) => (
-            <span key={index} className={`leaf-particle leaf-${index + 1}`}>
-              <Leaf size={18 + (index % 3) * 5} />
-            </span>
-          ))}
-        </div>
+        <HeroFloatingElements />
         <div className="container hero-content">
           <p className="eyebrow hero-tagline">From Indian soil, with care</p>
           <h1 className="word-reveal" aria-label="Pure Organic Goodness for Your Family">
@@ -600,10 +640,10 @@ function Home() {
           <p className="hero-subtext">Farm fresh, chemical-free, natural products delivered with trust.</p>
           <div className="hero-actions">
             <ButtonLink to="/shop">
-              <Sparkles size={17} /> Shop Now
+              <Sparkles size={17} /> Shop Ayurvedic Products
             </ButtonLink>
-            <ButtonLink to={whatsappUrl()} variant="outline" external>
-              <MessageCircle size={18} /> WhatsApp Us
+            <ButtonLink to={whatsappUrl()} variant="whatsapp" external>
+              <WhatsAppIcon size={18} /> WhatsApp Order
             </ButtonLink>
           </div>
           <div className="hero-trust-badges" aria-label="Arogya Organic trust badges">
